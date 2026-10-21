@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#faf9f6">
+	<title>Thống kê doanh thu | Food Order</title>
+	<link rel="stylesheet" th:href="@{/css/home.css}">
+	<link rel="stylesheet" th:href="@{/css/admin.css}">
+	<link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body class="dashboard-page">
+	<div th:replace="~{fragments/site-header :: siteHeader}"></div>
+	<main class="main dashboard-main">
+		<div class="page-heading">
+			<div>
+				<div class="eyebrow">Khu vực quản trị</div>
+				<h1>Thống kê doanh thu</h1>
+				<p class="subtitle">Tổng quan đơn hàng và doanh thu đã hoàn thành.</p>
+			</div>
+			<a class="button button-secondary" th:href="@{/admin/orders}">Quản lý đơn hàng</a>
+		</div>
+
+		<section class="dashboard-statistics" aria-label="Tổng quan đơn hàng">
+			<article class="dashboard-stat-card">
+				<span class="dashboard-stat-label">Tổng số đơn hàng</span>
+				<strong th:text="${dashboard.totalOrders}">0</strong>
+			</article>
+			<article class="dashboard-stat-card">
+				<span class="dashboard-stat-label">Đang chờ xử lý</span>
+				<strong th:text="${dashboard.pendingOrders}">0</strong>
+			</article>
+			<article class="dashboard-stat-card">
+				<span class="dashboard-stat-label">Đã hoàn thành</span>
+				<strong th:text="${dashboard.completedOrders}">0</strong>
+			</article>
+			<article class="dashboard-stat-card dashboard-revenue-card">
+				<span class="dashboard-stat-label">Tổng doanh thu hoàn thành</span>
+				<strong><span th:text="${#numbers.formatDecimal(dashboard.totalRevenue, 1, 'COMMA', 0, 'POINT')}">0</span> ₫</strong>
+			</article>
+		</section>
+
+		<section class="dashboard-panel">
+			<div class="dashboard-section-heading">
+				<div>
+					<h2>Doanh thu theo thời gian</h2>
+					<p>Doanh thu chỉ tính các đơn đã hoàn thành; số đơn gồm tất cả trạng thái.</p>
+				</div>
+			</div>
+			<form class="dashboard-filter" th:action="@{/admin/dashboard}" method="get">
+				<div class="dashboard-filter-field">
+					<label for="startDate">Từ ngày</label>
+					<input id="startDate" type="date" name="startDate" th:value="${dashboard.startDate}" required>
+				</div>
+				<div class="dashboard-filter-field">
+					<label for="endDate">Đến ngày</label>
+					<input id="endDate" type="date" name="endDate" th:value="${dashboard.endDate}" required>
+				</div>
+				<div class="dashboard-filter-field">
+					<label for="granularity">Nhóm theo</label>
+					<select id="granularity" name="granularity">
+						<option value="DAY" th:selected="${dashboard.granularity == 'DAY'}">Ngày</option>
+						<option value="MONTH" th:selected="${dashboard.granularity == 'MONTH'}">Tháng</option>
+					</select>
+				</div>
+				<button class="button" type="submit">Lọc thống kê</button>
+			</form>
+			<p class="dashboard-filter-error" th:if="${filterError}" role="alert" th:text="${filterError}"></p>
+
+			<div class="dashboard-chart-scroll">
+				<div class="dashboard-chart" role="img" aria-label="Biểu đồ doanh thu đã hoàn thành và số đơn theo thời gian">
+					<div class="dashboard-chart-column" th:each="point, iterStat : ${dashboard.revenuePoints}">
+						<div class="dashboard-bar-area">
+							<span class="dashboard-bar-value"
+								  th:if="${point.revenue.signum() > 0}"
+								  th:text="${#numbers.formatDecimal(point.revenue, 1, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+							<div class="dashboard-bar" th:style="|height: ${point.heightPercent}%;|"></div>
+						</div>
+						<strong class="dashboard-chart-count" th:text="${point.orderCount} + ' đơn'"></strong>
+						<span class="dashboard-chart-label"
+							  th:classappend="${dashboard.granularity == 'MONTH' ? (dashboard.revenuePoints.size() <= 18 or iterStat.index % 3 == 0 or iterStat.last) : (iterStat.index % 5 == 0 or iterStat.last)} ? '' : ' dashboard-chart-label-hidden'"
+							  th:text="${point.label}"></span>
+					</div>
+					<div class="dashboard-chart-empty" th:if="${#lists.isEmpty(dashboard.revenuePoints)}">
+						Không có khoảng thời gian để hiển thị.
+					</div>
+				</div>
+			</div>
+
+			<div class="dashboard-table-scroll">
+				<table class="dashboard-period-table">
+					<thead><tr><th>Thời gian</th><th>Số đơn hàng</th><th>Doanh thu hoàn thành</th></tr></thead>
+					<tbody>
+						<tr th:each="point : ${dashboard.revenuePoints}">
+							<td th:text="${point.label}"></td>
+							<td class="dashboard-number" th:text="${#numbers.formatDecimal(point.orderCount, 1, 'COMMA', 0, 'POINT')}"></td>
+							<td class="dashboard-number"><span th:text="${#numbers.formatDecimal(point.revenue, 1, 'COMMA', 0, 'POINT')}"></span> ₫</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<section class="dashboard-panel recent-orders">
+			<div class="dashboard-section-heading">
+				<div><h2>Đơn hàng gần đây</h2><p>10 đơn mới nhất từ dữ liệu hệ thống.</p></div>
+				<a class="dashboard-text-link" th:href="@{/admin/orders}">Xem tất cả →</a>
+			</div>
+			<div class="dashboard-table-scroll" th:if="${!#lists.isEmpty(dashboard.recentOrders)}">
+				<table class="dashboard-period-table recent-orders-table">
+					<thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Thời gian</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead>
+					<tbody>
+						<tr th:each="order : ${dashboard.recentOrders}">
+							<td><strong th:text="${order.orderNumber}"></strong></td>
+							<td th:text="${order.recipientName}"></td>
+							<td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+							<td><span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 0, 'POINT')}"></span> ₫</td>
+							<td><span class="order-status"
+									  th:classappend="${order.status.name() == 'COMPLETED' ? 'order-status-completed' : (order.status.name() == 'CANCELLED' ? 'order-status-cancelled' : (order.status.name() == 'PENDING' ? 'order-status-pending' : 'order-status-processing'))}"
+									  th:text="${order.status.label}"></span></td>
+							<td><a class="dashboard-text-link" th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiết</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="dashboard-empty" th:if="${#lists.isEmpty(dashboard.recentOrders)}">
+				Chưa có đơn hàng nào.
+			</div>
+		</section>
+	</main>
+</body>
+</html>

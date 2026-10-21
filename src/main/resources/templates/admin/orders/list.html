@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Quản lý đơn hàng | Food Order</title>
+	<link rel="stylesheet" th:href="@{/css/home.css}">
+	<link rel="stylesheet" th:href="@{/css/admin.css}">
+	<link rel="stylesheet" th:href="@{/css/orders.css}">
+</head>
+<body>
+	<div th:replace="~{fragments/site-header :: siteHeader}"></div>
+	<main class="main">
+		<div class="page-heading">
+			<div><div class="eyebrow">Khu vực quản trị</div><h1>Đơn hàng</h1><p class="subtitle">Theo dõi đơn đặt hàng và trạng thái xử lý.</p></div>
+		</div>
+		<div class="table-wrap" th:if="${!#lists.isEmpty(orders)}">
+			<table>
+				<thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Thời gian đặt</th><th>Tổng tiền</th><th>Thanh toán</th><th>Trạng thái</th><th></th></tr></thead>
+				<tbody>
+					<tr th:each="order : ${orders}">
+						<td><strong th:text="${order.orderNumber}"></strong></td>
+						<td><strong th:text="${order.recipientName}"></strong><br><small>Tài khoản: <span th:text="${order.customerUsername}"></span></small></td>
+						<td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+						<td class="price"><span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 0, 'POINT')}"></span> ₫</td>
+						<td th:text="${order.paymentMethod.label}"></td>
+						<td><span class="order-status"
+								  th:classappend="${order.status.name() == 'COMPLETED' ? 'order-status-completed' : (order.status.name() == 'CANCELLED' ? 'order-status-cancelled' : (order.status.name() == 'PENDING' ? 'order-status-pending' : 'order-status-processing'))}"
+								  th:text="${order.status.label}"></span></td>
+						<td><a class="button button-secondary" th:href="@{/admin/orders/{id}(id=${order.id})}">Chi tiết</a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="table-wrap empty" th:if="${#lists.isEmpty(orders)}">
+			<div class="empty-icon">📦</div><h2>Chưa có đơn hàng</h2><p>Đơn hàng mới sẽ xuất hiện tại đây.</p>
+		</div>
+	</main>
+</body>
+</html>

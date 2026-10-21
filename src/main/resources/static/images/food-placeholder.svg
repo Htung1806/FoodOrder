@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Ảnh món ăn">
+	<rect width="640" height="420" fill="#eaf4e9"/>
+	<circle cx="320" cy="210" r="142" fill="#fffaf3"/>
+	<circle cx="320" cy="210" r="112" fill="#f3dba9"/>
+	<circle cx="320" cy="210" r="87" fill="#fff1d7"/>
+	<path d="M268 228c18-60 90-78 111-21 16 43-25 76-60 67-29-8-39-24-51-46Z" fill="#7eae72"/>
+	<circle cx="291" cy="184" r="14" fill="#f1a34a"/>
+	<circle cx="351" cy="248" r="12" fill="#f1a34a"/>
+	<path d="M311 184c20 10 37 27 45 48" fill="none" stroke="#26734d" stroke-linecap="round" stroke-width="9"/>
+</svg>

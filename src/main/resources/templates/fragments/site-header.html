@@ -1,0 +1,42 @@
+<div th:fragment="siteHeader" xmlns:th="http://www.thymeleaf.org"
+	 xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	<header class="site-header" id="trang-chu">
+		<nav class="container nav" aria-label="Điều hướng chính">
+			<a class="brand" th:href="@{/#trang-chu}" aria-label="Food Order - Trang chủ">
+				<span class="brand-mark" aria-hidden="true">🍴</span>
+				<span>FOOD ORDER</span>
+			</a>
+			<div class="main-nav-links">
+				<a th:href="@{/#trang-chu}">Trang chủ</a>
+				<a th:href="@{/#danh-muc}">Thực đơn</a>
+				<a th:href="@{/#khuyen-mai}">Khuyến mãi</a>
+				<a th:href="@{/orders}">Đơn hàng</a>
+				<a th:href="@{/#lien-he}">Liên hệ</a>
+			</div>
+			<div class="nav-actions">
+				<a class="cart-link" th:href="@{/cart}" aria-label="Mở giỏ hàng"><span aria-hidden="true">🛒</span> Giỏ hàng</a>
+				<div class="account-links" sec:authorize="isAnonymous()">
+					<a class="nav-login" th:href="@{/login}">Đăng nhập</a>
+					<a class="nav-login nav-register" th:href="@{/register}">Đăng ký</a>
+				</div>
+				<div class="account-menu" sec:authorize="isAuthenticated()">
+					<span class="account-name">Xin chào, <strong sec:authentication="name">bạn</strong></span>
+					<form th:action="@{/logout}" method="post">
+						<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+						<button class="logout-button" type="submit">Đăng xuất</button>
+					</form>
+				</div>
+				<details class="admin-menu" sec:authorize="hasRole('ADMIN')">
+					<summary>Quản trị</summary>
+					<div class="admin-menu-links">
+						<a th:href="@{/admin/dashboard}">Thống kê doanh thu</a>
+						<a th:href="@{/admin/categories}">Quản lý danh mục</a>
+						<a th:href="@{/admin/products}">Quản lý món ăn</a>
+						<a th:href="@{/admin/orders}">Quản lý đơn hàng</a>
+						<a th:href="@{/admin/accounts}">Quản lý tài khoản</a>
+					</div>
+				</details>
+			</div>
+		</nav>
+	</header>
+</div>

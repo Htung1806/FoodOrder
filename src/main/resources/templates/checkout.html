@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#faf9f6">
+	<title>Thanh toán | Food Order</title>
+	<link rel="stylesheet" th:href="@{/css/home.css}">
+	<link rel="stylesheet" th:href="@{/css/checkout.css}">
+</head>
+<body>
+	<div th:replace="~{fragments/site-header :: siteHeader}"></div>
+	<main class="checkout-page">
+		<header class="checkout-heading">
+			<p class="checkout-eyebrow">Sắp hoàn tất</p>
+			<h1>Xác nhận đơn hàng</h1>
+			<p>Kiểm tra món ăn và nhập thông tin giao hàng của bạn.</p>
+		</header>
+		<div class="checkout-error" role="alert" th:if="${orderError}" th:text="${orderError}"></div>
+		<div class="checkout-grid">
+			<section class="checkout-panel order-review" aria-labelledby="review-title">
+				<h2 id="review-title">Món trong giỏ hàng</h2>
+				<div class="checkout-items">
+					<article class="checkout-item" th:each="item : ${cart.items()}">
+						<img class="checkout-image"
+							 th:src="${item.imageUrl() != null and !#strings.isEmpty(item.imageUrl()) ? item.imageUrl() : '/images/food-placeholder.svg'}"
+							 th:alt="${item.name()}" onerror="this.onerror=null;this.src='/images/food-placeholder.svg'">
+						<div class="checkout-item-info">
+							<h3 th:text="${item.name()}"></h3>
+							<p><span th:text="${item.quantity()}"></span> ×
+								<span th:text="${#numbers.formatDecimal(item.unitPrice(), 1, 'COMMA', 0, 'POINT')}"></span> ₫</p>
+						</div>
+						<strong class="checkout-line-total">
+							<span th:text="${#numbers.formatDecimal(item.lineTotal(), 1, 'COMMA', 0, 'POINT')}"></span> ₫
+						</strong>
+					</article>
+				</div>
+				<div class="checkout-total">
+					<span>Tổng tiền</span>
+					<strong><span th:text="${#numbers.formatDecimal(cart.total(), 1, 'COMMA', 0, 'POINT')}"></span> ₫</strong>
+				</div>
+				<a class="checkout-back" th:href="@{/cart}">← Quay lại giỏ hàng</a>
+			</section>
+
+			<section class="checkout-panel" aria-labelledby="delivery-title">
+				<h2 id="delivery-title">Thông tin nhận hàng</h2>
+				<form class="checkout-form" th:action="@{/checkout}" th:object="${checkoutForm}" method="post">
+					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+					<input type="hidden" name="checkoutToken" th:value="${checkoutToken}">
+					<div class="checkout-field">
+						<label for="recipientName">Họ tên người nhận</label>
+						<input id="recipientName" type="text" th:field="*{recipientName}" autocomplete="name"
+							   maxlength="100" required aria-describedby="recipientName-error">
+						<p class="checkout-field-error" id="recipientName-error"
+						   th:if="${#fields.hasErrors('recipientName')}" th:errors="*{recipientName}"></p>
+					</div>
+					<div class="checkout-field">
+						<label for="phoneNumber">Số điện thoại</label>
+						<input id="phoneNumber" type="tel" th:field="*{phoneNumber}" autocomplete="tel"
+							   maxlength="30" required aria-describedby="phoneNumber-error">
+						<p class="checkout-field-error" id="phoneNumber-error"
+						   th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></p>
+					</div>
+					<div class="checkout-field">
+						<label for="deliveryAddress">Địa chỉ giao hàng</label>
+						<textarea id="deliveryAddress" th:field="*{deliveryAddress}" autocomplete="street-address"
+								  maxlength="500" required aria-describedby="deliveryAddress-error"></textarea>
+						<p class="checkout-field-error" id="deliveryAddress-error"
+						   th:if="${#fields.hasErrors('deliveryAddress')}" th:errors="*{deliveryAddress}"></p>
+					</div>
+					<div class="checkout-field">
+						<label for="note">Ghi chú <span>(không bắt buộc)</span></label>
+						<textarea id="note" th:field="*{note}" maxlength="1000"></textarea>
+						<p class="checkout-field-error" th:if="${#fields.hasErrors('note')}" th:errors="*{note}"></p>
+					</div>
+					<fieldset class="payment-choice">
+						<legend>Phương thức thanh toán</legend>
+						<label>
+							<input type="radio" th:field="*{paymentMethod}" value="COD" required>
+							<span><strong>Thanh toán khi nhận hàng (COD)</strong><small>Thanh toán tiền mặt khi nhận món.</small></span>
+						</label>
+						<p class="checkout-field-error" th:if="${#fields.hasErrors('paymentMethod')}"
+						   th:errors="*{paymentMethod}"></p>
+					</fieldset>
+					<button class="checkout-submit" type="submit">Xác nhận đặt hàng</button>
+					<p class="checkout-secure-note">Giá và tổng tiền được xác minh lại từ thực đơn khi đặt hàng.</p>
+				</form>
+			</section>
+		</div>
+	</main>
+</body>
+</html>

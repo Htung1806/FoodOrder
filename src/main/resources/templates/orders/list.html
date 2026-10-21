@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#faf9f6">
+	<title>Đơn hàng của tôi | Food Order</title>
+	<link rel="stylesheet" th:href="@{/css/home.css}">
+	<link rel="stylesheet" th:href="@{/css/checkout.css}">
+	<link rel="stylesheet" th:href="@{/css/orders.css}">
+</head>
+<body>
+	<div th:replace="~{fragments/site-header :: siteHeader}"></div>
+	<main class="orders-page">
+		<header class="orders-heading">
+			<p class="checkout-eyebrow">Lịch sử mua hàng</p>
+			<h1>Đơn hàng của tôi</h1>
+			<p>Theo dõi trạng thái và xem lại thông tin các đơn hàng của bạn.</p>
+		</header>
+		<section class="orders-card">
+			<div class="orders-empty" th:if="${#lists.isEmpty(orders)}">
+				<h2>Bạn chưa có đơn hàng nào</h2>
+				<p>Hãy khám phá thực đơn và chọn món yêu thích nhé.</p>
+				<a class="orders-button" th:href="@{/#danh-muc}">Xem thực đơn</a>
+			</div>
+			<div class="orders-table-wrap" th:unless="${#lists.isEmpty(orders)}">
+				<table class="orders-table">
+					<thead><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Trạng thái</th><th>Tổng tiền</th><th></th></tr></thead>
+					<tbody>
+						<tr th:each="order : ${orders}">
+							<td data-label="Mã đơn"><strong th:text="${order.orderNumber}"></strong></td>
+							<td data-label="Ngày đặt" th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+							<td data-label="Trạng thái"><span class="order-status"
+									  th:classappend="${order.status.name() == 'COMPLETED' ? 'order-status-completed' : (order.status.name() == 'CANCELLED' ? 'order-status-cancelled' : (order.status.name() == 'PENDING' ? 'order-status-pending' : 'order-status-processing'))}"
+									  th:text="${order.status.label}"></span></td>
+							<td data-label="Tổng tiền"><strong class="orders-price"><span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 0, 'POINT')}"></span> ₫</strong></td>
+							<td><a class="orders-detail-link" th:href="@{/orders/{id}(id=${order.id})}">Chi tiết</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</main>
+</body>
+</html>

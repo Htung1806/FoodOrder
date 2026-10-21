@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#faf9f6">
+	<title>Đăng ký Food Order</title>
+	<link rel="stylesheet" th:href="@{/css/home.css}">
+	<link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+	<div th:replace="~{fragments/site-header :: siteHeader}"></div>
+	<main class="auth-page">
+		<section class="auth-card" aria-labelledby="register-title">
+			<div class="auth-mark" aria-hidden="true">🍴</div>
+			<p class="auth-eyebrow">Tham gia cùng Food Order</p>
+			<h1 id="register-title">Tạo tài khoản</h1>
+			<p class="auth-intro">Tạo tài khoản để lưu lại trải nghiệm món ngon của bạn.</p>
+			<form class="auth-form" th:action="@{/register}" th:object="${registrationForm}" method="post">
+				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+				<label for="username">Tên đăng nhập</label>
+				<input id="username" th:field="*{username}" type="text" autocomplete="username" required minlength="3" maxlength="50" aria-describedby="username-error">
+				<span class="field-error" id="username-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+				<label for="password">Mật khẩu</label>
+				<input id="password" th:field="*{password}" type="password" autocomplete="new-password" required minlength="8" maxlength="72" aria-describedby="password-error">
+				<span class="field-error" id="password-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+				<label for="confirmPassword">Nhập lại mật khẩu</label>
+				<input id="confirmPassword" th:field="*{confirmPassword}" type="password" autocomplete="new-password" required aria-describedby="confirm-password-error">
+				<span class="field-error" id="confirm-password-error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></span>
+				<button class="auth-submit" type="submit">Đăng ký</button>
+			</form>
+			<p class="auth-switch">Bạn đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a></p>
+		</section>
+	</main>
+</body>
+</html>

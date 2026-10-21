@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#faf9f6">
+	<title>Chi tiết đơn hàng | Food Order</title>
+	<link rel="stylesheet" th:href="@{/css/home.css}">
+	<link rel="stylesheet" th:href="@{/css/checkout.css}">
+	<link rel="stylesheet" th:href="@{/css/orders.css}">
+</head>
+<body>
+	<div th:replace="~{fragments/site-header :: siteHeader}"></div>
+	<main class="orders-page">
+		<div class="orders-heading">
+			<p class="checkout-eyebrow">Thông tin đơn đặt hàng</p>
+			<h1>Đơn hàng <span th:text="${order.orderNumber}"></span></h1>
+			<p th:if="${orderSuccess}" class="orders-success" role="status" th:text="${orderSuccess}"></p>
+			<p th:if="${orderError}" class="orders-error" role="alert" th:text="${orderError}"></p>
+		</div>
+		<div class="order-detail-grid">
+			<section class="orders-card">
+				<h2>Các món đã đặt</h2>
+				<div class="checkout-items">
+					<article class="checkout-item" th:each="item : ${order.items}">
+						<img class="checkout-image"
+							 th:src="${item.productImageUrl != null and !#strings.isEmpty(item.productImageUrl) ? item.productImageUrl : '/images/food-placeholder.svg'}"
+							 th:alt="${item.productName}" onerror="this.onerror=null;this.src='/images/food-placeholder.svg'">
+						<div class="checkout-item-info">
+							<h3 th:text="${item.productName}"></h3>
+							<p><span th:text="${item.quantity}"></span> ×
+								<span th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 0, 'POINT')}"></span> ₫</p>
+						</div>
+						<strong class="checkout-line-total">
+							<span th:text="${#numbers.formatDecimal(item.lineTotal, 1, 'COMMA', 0, 'POINT')}"></span> ₫
+						</strong>
+					</article>
+				</div>
+				<div class="checkout-total"><span>Tổng tiền</span><strong><span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 0, 'POINT')}"></span> ₫</strong></div>
+			</section>
+			<aside class="orders-card order-information">
+				<h2>Thông tin giao hàng</h2>
+				<dl>
+					<dt>Người nhận</dt><dd th:text="${order.recipientName}"></dd>
+					<dt>Số điện thoại</dt><dd th:text="${order.phoneNumber}"></dd>
+					<dt>Địa chỉ</dt><dd th:text="${order.deliveryAddress}"></dd>
+					<dt>Thanh toán</dt><dd th:text="${order.paymentMethod.label}"></dd>
+					<dt>Trạng thái</dt><dd><span class="order-status"
+							  th:classappend="${order.status.name() == 'COMPLETED' ? 'order-status-completed' : (order.status.name() == 'CANCELLED' ? 'order-status-cancelled' : (order.status.name() == 'PENDING' ? 'order-status-pending' : 'order-status-processing'))}"
+							  th:text="${order.status.label}"></span></dd>
+					<dt>Ghi chú</dt><dd th:text="${order.note != null ? order.note : 'Không có'}"></dd>
+				</dl>
+				<form th:if="${canCancel}" th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post" class="cancel-order-form">
+					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+					<button class="cancel-order-button" type="submit">Hủy đơn hàng</button>
+				</form>
+				<a class="orders-detail-link" th:href="@{/orders}">← Quay lại danh sách đơn hàng</a>
+			</aside>
+		</div>
+	</main>
+</body>
+</html>

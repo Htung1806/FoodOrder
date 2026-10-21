@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#faf9f6">
+	<title>Quản lý tài khoản | Food Order</title>
+	<link rel="stylesheet" th:href="@{/css/home.css}">
+	<link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+	<div th:replace="~{fragments/site-header :: siteHeader}"></div>
+	<main class="main">
+		<div class="page-heading">
+			<div>
+				<div class="eyebrow">Khu vực quản trị</div>
+				<h1>Tài khoản</h1>
+				<p class="subtitle">Tìm tài khoản đã đăng ký và xem vai trò được cấp.</p>
+			</div>
+		</div>
+
+		<form class="account-search" th:action="@{/admin/accounts}" method="get" role="search">
+			<label for="keyword">Tên đăng nhập</label>
+			<input id="keyword" type="search" name="keyword" th:value="${keyword}"
+				   placeholder="Nhập tên đăng nhập cần tìm">
+			<button class="button" type="submit">Tìm kiếm</button>
+			<a class="button button-secondary" th:href="@{/admin/accounts}">Xóa lọc</a>
+		</form>
+
+		<div class="table-wrap" th:if="${!#lists.isEmpty(accounts)}">
+			<table>
+				<thead><tr><th>Tên đăng nhập</th><th>Vai trò</th></tr></thead>
+				<tbody>
+					<tr th:each="account : ${accounts}">
+						<td class="cell-title" th:text="${account.username}"></td>
+						<td>
+							<span class="badge"
+								  th:classappend="${account.role == 'ROLE_ADMIN' ? ' badge-admin' : ' badge-available'}"
+								  th:text="${account.role == 'ROLE_ADMIN' ? 'Quản trị viên' : 'Khách hàng'}"></span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="table-wrap empty" th:if="${#lists.isEmpty(accounts)}">
+			<div class="empty-icon">👤</div>
+			<h2>Không tìm thấy tài khoản</h2>
+			<p th:if="${!#strings.isEmpty(keyword)}">Thử tìm bằng tên đăng nhập khác.</p>
+			<p th:if="${#strings.isEmpty(keyword)}">Chưa có tài khoản đăng ký nào được lưu trong hệ thống.</p>
+		</div>
+	</main>
+</body>
+</html>
